@@ -1,0 +1,510 @@
+\documentclass{llncs}
+\usepackage[latin1]{inputenc}
+\usepackage{pdfpages}
+\usepackage[hypcap]{caption}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{algorithmic}
+\usepackage{algorithm2e}
+%\usepackage{column}
+\usetikzlibrary{positioning,shadows,arrows,automata}
+\usepackage{wasysym}
+\usepackage{ marvosym }
+\usepackage{colortbl}
+\def\newblock{\hskip .11em plus.33em minus.07em}
+\usepackage{xcolor}
+\definecolor{gray}{rgb}{0.4,0.4,0.4}
+\definecolor{darkblue}{rgb}{0.0,0.0,0.6}
+\definecolor{cyan}{rgb}{0.0,0.6,0.6}
+\definecolor{nblue}{rgb}{0.0,0.75,1}
+\definecolor{npink}{rgb}{0.99998, 0, 1}
+%\usepackage{BeamerColor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{amsmath, amssymb, amsfonts}
+%Definieren des Innertheme, zustaendig f?r die Symbole bei Listen
+
+\title{Endliche Automaten und die durch sie erkennbaren Sprachen}
+\author{Felix Holzwarth \\ \email{felix.holzwarth @student.uni-tuebingen.de}}
+\institute{Universität T\"ubingen }
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+In der  folgenden Ausarbeitung geht es um endliche Automaten und die durch sie erkennbaren Sprachen. Diese Sprachen werden als recocnisable bezeichnet. Zu Beginn sind die endlichen Automaten definiert und einige Eigenschaften dieser dargestellt. Anschließend ist das Pumping Lemma eingeführt. Dieses ist eine Methode um für eine gegebene Sprache nachzuweisen, dass diese nicht regulär sprich recocnasible also durch endliche Automaten erkennbar ist. Dabei ist anzumerken dass das Pumping Lemma nicht die regulären Sprachen definiert, es also Sprachen gibt die das Pumping Lemma erfüllen, jedoch nicht regulär sind. \linebreak
+Der letzte Teil widmet sich den deterministischen endlichen Automaten und einigen Eigenschaften dieser Automaten. Es wird gezeigt das diese äquivalent zu den endlichen Automaten sind. Anders ausgedrückt bedeutet dies, dass sich jeder endliche Automat determinisieren lässt, ohne das sich die durch ihn erkannte Sprache ändert.
+\end{abstract}
+
+\section{Einleitung}
+Die regulären Sprachen lassen sich durch unterschiedliche Formalismen beschreiben. Ein Zugang zu ihnen sind z.B. die Regulären Ausdrücke. Im Folgenden nähern wir uns den regulären Sprachen mithilfe der endlichen Automaten. Diese haben einige Eigenschaften die ebenfalls Vorgestellt sind, eine besondere Eigenschaft ist z.B die graphische Darstellbarkeit dieser Automaten
+
+\newpage 
+
+\section{Endliche Automaten}
+\subsection{Definiton}
+Ein endlicher Automat ist ein 5-Tupel $\mathcal{A}$ = ($Q$, $A$, $E$, $I$,$ F$)
+\linebreak[2]
+
+\begin{center}
+	\begin{itemize}
+		\item $Q$ : endliche Menge von Zuständen  
+		\item $A$ : Alphabet aus Zeichen
+		\item $E$ : Teilmenge von Q $\times$ A $\times$ Q (Transitionen)
+		\item $I$ : Teilmenge von Q (Initiale Zustände)
+		\item $F$ : Teilmenge von Q (Endzustände)
+	\end{itemize}
+\end{center}
+
+Ein endlicher Automat ist durch diese 5 endliche Mengen beschrieben. Zu Transitionen ist anzumerken das diese Aus dem Kreuzprodukt aus einem Zustand aus den Zuständen $Q$, einem Zeichen aus dem Alphabet $A$ und einem Zustand aus der Menge der Zustände $Q$ gebildet werden. \\ \ \\
+Daran lässt sich deren Charakter erkennen, eine Transition beschreibt etwas das mit zwei Zuständen und einem Zeichen zu tun hat. Sie beschreiben gerade den Übergang aus einem Zustand unter einem Zeichen in einen nächsten (evtl. auch den selben) Zustand. Dies wird in kürze durch an einem Beispiel verdeutlicht.
+
+
+\subsection{Graphische Darstellung}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+	semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state] (A)                    {$1$};
+	\node[initial,state, accepting]         (B) [below of=A] {$2$};
+	
+	
+	\path (A) edge [bend left]            node {$a$} (B)
+	(B) edge [bend left] node {$b$} (A)
+	(B) edge [loop right] node {$b$} (B)
+	(A) edge [loop right] node {$a$} (A);
+	
+	\end{tikzpicture}
+	\caption{Beispiel zur graph. Darstellung}
+	\label{fig:Aut1}
+\end{figure}
+
+Die endlichen Automaten lassen sich auf eine geschickte Art graphisch Darstellen. Dabei geht man wie folgt vor: \\
+\begin{center}
+		\begin{itemize}
+			\item Die Knoten (Kreis) repräsentieren die Zustände des Automaten
+			\item Die Kanten repräsentieren die Transitionen
+			\item Initiale Zustände sind durch eingehenden Pfeilen markiert
+			\item Endzustände sind durch doppelte Kreise markiert
+		\end{itemize}
+\end{center}
+
+In \ref{fig:Aut1} Ist ein Beispiel zur graphischen Darstellung eines endlichen Automaten gegeben. Dieser ist durch das 5 Tupel an Mengen definiert. \\ \ \\
+Sei $\mathcal{A} = (Q,A,E,I,F)$ mit $Q=\{1, 2\}$, $I=\{1, 2\}$, $F=\{2\}$, $A=\{a, b\}$ \\
+ und $E=\{(1, a,  1),(2 , b,1),(1, a, 2),(2, b, 2)\}$ \\ \ \\
+ Die Zustandsmenge $Q$ besteht aus den Zuständen $1$ und $2$, 
+ die Menge der Initialen Zustände besteht aus den Zuständen $1$ und $2$, 
+ die Menge der Endzustände besteht nur aus dem Zustand $2$, das Alphabet besteht aus den Zeichen $a$ und $b$ und die Menge der Transitionen besteht aus den Übergängen aus Zustand $1$ unter einem $a$ zurück in den Zustand $1$, aus dem Zustand $2$ unter einem $b$ in den Zustand $1$, aus Zustand $1$ unter einem $a$ in den Zustand $2$ und aus dem Zustand $2$ unter einem $b$ zurück in den Zustand $2$.  
+ 
+
+
+
+
+\subsection{Eigenschaften endlicher Automaten}
+
+Nun sind einige Eigenschaften endlicher Automaten betrachtet. Diese Begrifflichkeiten und Eigenschaften erleichtern im folgenden über bestimmte Themen im Zusammenhang mit den endlichen Automaten zu sprechen. \\ \ \\
+2 Transitionen $(p,a,q)$ und $(p',a',q')$ heißen \textbf{ \glqq aufeinanderfolgend \grqq\ } wenn $q=p'$. Der Zustand in den der Automat unter dem ersten Zeichen gegenangen ist muss mit dem ersten Zustand der betrachteten Transition übereinstimmen.  \\ \ \\
+	Ein \textbf{\glqq Pfad \grqq} im Automat $\mathcal{A}$ ist eine endliche Folge aus aufeinanderfolgenden Transitionen. Ein Pfad kann auf 2 verschiedene Arten notiert werden.
+	\newline
+	\newline
+	Die eine Art benutzt die Tupel in der die einzelnen Transitionen definiert sind direkt:\\ \ \\
+	$c = (q_0, a_1,q_1)$,$(q_1, a_2,q_2)$, .... , $(q_{n-1}, a_n,q_n)$ \\
+	\newline
+	Die andere Art ist verkürzt, hierbei spart man sich den einen Zustand der in beiden Transitionen gleich sein muss doppelt zu notieren: \\ \ \\
+	$c : q_0 \xrightarrow [] {a_1}$ $q_1 \cdots q_{n-1} \xrightarrow [] {a_n}q_n$
+	\newline
+	\newline
+	Der Zustand $q_0$ heißt \textbf{Ursprung} und $q_n$ heißt \textbf{Ende}, 
+	$a_1 \cdots a_n$ ist das \textbf{Label} und $n$ die \textbf{Länge} des Pfades \\ \ \\
+	Nun betrachten wir einige Eigenschaften von Pfaden selbst. Ein \textbf{Pfad} in $\mathcal{A}$ heißt \textbf{initial} wenn sein \textit{Ursprung} ein initiale Zustand ist und \textbf{final} wenn sein \textit{Ende} ein Endzustand ist
+	\newline
+	\newline
+	Ein \textbf{Pfad} heißt \textbf{akzeptierend} wenn er \textit{initial} und \textit{final} ist 
+ \newpage
+ 
+ Pfade und deren Eigenschaften in einem Automaten sind im folgenden Beispiel nocheinmal verdeutlicht \\
+ 
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.8cm,
+	semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state] (A)                    {$1$};
+	\node[initial,state, accepting]         (B) [below of=A] {$2$};
+	
+	
+	\path (A) edge [bend left]            node {$a$} (B)
+	(B) edge [bend left] node {$b$} (A)
+	(B) edge [loop right] node {$b$} (B)
+	(A) edge [loop right] node {$a$} (A);
+	
+	\end{tikzpicture}
+	\caption{Vorheriger Automat}
+	\label{fig:Aut2}
+\end{figure} 
+Der Pfad in \ref{fig:Aut2} $c_1:1 \xrightarrow{a} 2 \xrightarrow{b} 2 \xrightarrow{b} 1 \xrightarrow{a} 2 \xrightarrow{b} 2$ ist akzeptierend da er initial und final ist, sprich sein Urpsrung ist ein initialer Zustand und sein Ende ein Endzustand. \\
+Hingegen ist der Pfad in \ref{fig:Aut2} $c_2:1 \xrightarrow{a} 2 \xrightarrow{b} 2 \xrightarrow{b} 1 \xrightarrow{a} 2 \xrightarrow{b} 1$ nicht akzeptierend da er nicht final ist, er also nicht in einem Endzustand endet. Es fällt auf das beide Pfade das selbe Label besitzten. Ein Label kann in einem endlichen Automaten mehrere Pfade definieren. \\ \ \\
+
+Ein Zustand $q$ heißt \textbf{erreichbar} wenn es einen \textit{initialen Pfad} gibt der in $ q $  \textit{endet}. Ein Zustand $q$ ist \textbf{coerreichbar} wenn ein \textit{finaler Pfad} existiert der in Zustand $q$ startet. \\
+
+\begin{figure}
+	\centering
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,
+		semithick]
+		\tikzstyle{every state}=[fill=none,draw=black,text=black]
+		
+		\node[initial,state] (A)                    {$1$};
+		\node[state]         (B) [right of=A] {$2$};
+		\node[state,accepting] (C) [right of=B] {$3$};
+		\node[state] (D) [below of=C] {$4$};
+		\node[state] (E) [left of=D] {$5$};
+		
+		
+		\path (A) edge           node {a} (B)
+		(B) edge  node {b} (C)
+		(D) edge  node {a,b} (C)
+		(D) edge  node {a} (E);
+		
+		\end{tikzpicture}
+	\caption{Automat mit erreichbaren und coerreichbaren Zuständen}
+	\label{fig:Aut3}
+\end{figure} 
+
+Der Zustand $2$ oder der Zustand $3$ in \ref{fig:Aut3} sind \textit{erreichbar} da in beiden Fällen ein initialer Pfad existiert, der jeweils in den Zuständen endet. Der Zustand $4$ in \ref{fig:Aut3} ist \textit{coerreichbar} da ein finaler Pfad existiert der in $4$ startet. Zustand $5$ in \ref{fig:Aut3}ist weder \textit{erreichbar} noch \textit{coerreichbar} \\ \ \\
+Nun können wir die akzeptierte Sprache $\mathcal{L}$ eines Automaten definieren. Ein Wort  $w$ über $A$ wird durch den Automaten $\mathcal{A}$ \textit{akzeptiert}, wenn $w$ das \textit{Label} mindestens eines \textit{akzeptierendes Pfades} ist.\\ \ \\
+Die \textbf{Sprache die von $\mathcal{A}$ erkannt wird} ist Menge aller Wörter die durch $\mathcal{A}$ erkannt werden. Ausgedrückt durch $\mathcal{L}$($\mathcal{A}$). Eine Sprache $\mathcal{L}$ heißt \textbf{recognisable} wenn sie durch einen endlichen Automaten $\mathcal{A}$ erkannt wird so dass : $\mathcal{L} = \mathcal{L}$($\mathcal{A$}). Zwei Automaten sind \textbf{äquivalent} wenn sie die gleiche \textit{Sprache $\mathcal{L}$} erkennen. \\ \ \\
+
+
+
+
+\section{Das Pumping Lemma}
+Eine Möglichkeit nachzuweisen das eine Sprache nicht regulär ist, sie also nicht durch einen endlichen Automaten erkannt werden kann, ist das Pumping Lemma.
+
+\subsection{Definition}
+
+Sei $\mathcal{L}$ eine \textit{recognisable} Sprache. Dann $\exists n > 0$ : $\forall $ Wörter $u \in \mathcal{L} $ mit $ \vert u \vert \geq n $ gilt dass sie sich faktorsieren lassen als $u = xyz$, mit $x, y , z \in A^*$ , $\vert xy \vert \leq n$ , $\vert y \vert \geq 1$ und $\forall k \geq 0$ $ xy^{k}z \in \mathcal{L}$ \\ \ \\
+In Worten ausgedrückt bedeuted dies, dass für jede reguläre Sprache $\mathcal{L}$ ein $n$ existiert, so dass für jedes Wort $w$ aus $\mathcal{L}$ der Länge $ \vert w \vert \geq n$ gilt, das es eine Zerlegung in Teilworte $w = xyz$ hat die die obigen drei Eigenschaften erfüllen: \\
+\begin{itemize}
+	\item Der Betrag $\vert xy \vert$ des Teilwortes xy ist $\leq n$
+	\item Das Teilwort y ist nicht das leere Wort, es besteht aus mind. aus einem Zeichen
+	\item $\forall k \geq 0 : xy^{k}z \in \mathcal{L}$
+\end{itemize} 
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.4cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state,minimum size=0.4cm]		(A)				{\tiny $q_0$};
+	\node[state,minimum size=0.4cm]			(B)	[right of=A]	{\tiny $q_1$};
+	
+	\path		(A)	edge		 	node	{} (B)
+	;
+	\end{tikzpicture}  \tiny $\cdot \cdot \cdot$  
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[state,minimum size=0.4cm]		(A)				{\tiny $q_{i}$};
+	\node[state,minimum size=0.4cm]			(B)	[right of=A]	{\tiny $q_{j}$};
+	
+	\path		(B)	edge [bend right]		 	node	{} (A)
+	(A) edge node {} (B)
+	;
+	\end{tikzpicture} \tiny $\cdot \cdot \cdot$  
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[state,minimum size=0.3cm]		(A)				{\tiny $q_{n-1}$};
+	\node[state,accepting,minimum size=0.4cm]			(B)	[right of=A]	{\tiny $q_{n}$};
+	
+	\path		(A)	edge 	node	{} (B)
+	;
+	\end{tikzpicture}
+	\caption{Idee hinter dem Pumping Lemma}
+	\label{fig:Aut4}
+\end{figure} 
+Die Idee hinter dem Pumping Lemma, (auch Schleifensatz) ist in \ref{fig:Aut4} verdeutlicht. Da jeder Automat $\mathcal{A}$ nur endlich viele Zustände $n$ Besitzt, gilt also ab einem Bestimmten $n$ das die Anzahl der verschiedenen Zustände beschreibt, das ein Wort aus der Sprache $\mathcal{L}$ dessen Betrag größer als n ist, mind. $n+1$ Zustände Benötigt. Dies Bedeuted dass das Wort mind. einen Zustand doppelt benutzen muss und dadurch eine Schleife in den Zuständen bildet.
+
+\subsection{Beweis des Pumping Lemma}
+Sei $\mathcal{A} = (Q,A,E,I,F)$ ein Automat mit $n$ Zuständen also $\vert Q \vert = n$ der $\mathcal{L}$ erkennt.\\
+Nach dem  Pumping Lemma existiert ein $n$ so das für Alle Worte der länge mindestens $n$ die oben genannten Eigenschaften des Pumping Lemmas gelten. \\
+\begin{center}
+	Sei $u = a_1,\cdots,a_r$ ein Wort $\in \mathcal{L}$ mit $r \geq n$.\\
+\end{center} \\ \ \\
+Sei $c: q_0 \xrightarrow{a_1} q_1 \cdots q_{r-1} \xrightarrow{a_r} q_r$ ein \textit{akzeptierender} Pfad der mit $u$ \textit{gelabelt} ist.\\
+\begin{center}
+	Da $r \geq n$ $\exists$ $i$, $j : i < j \leq n $ so dass $q_{i} = q_{j}$
+\end{center}
+\\ \ \\
+\lewline
+Aus diesem Grund ist das Teilwort $a_{i+1} \cdots a_j{}$ das \textit{Label} einer Schleife um den Zustand $q_i$\\ \ \\
+Ist nun $x = a_1 \cdots a_i$, $y = a_{i+1} \cdots a_j$, $z = a_{j+1} \cdots a_r$ dann ist $\vert xy \vert \leq n$ und $\forall k \geq 0$ gilt $xy^{k}z \in \mathcal{L}$, da $xy^{k}z$ das \textit{label} eines \textit{akzeptierenden} Pfades ist. qed
+
+\subsection{Beispiel $\{a^n b^n \vert n \geq 0 \}$}
+
+Sei $\mathcal{L}= \{a^n b^n \vert n \geq 0 \}$ Angenommen $\mathcal{L}$ sei duch einen endl. Automaten \textit{erkennbar}. \\ \ \\
+Nach Pumping lemma $\exists n > 0 $ so dass jedes Wort $w$ aus $\mathcal{L}$ der Länge $\geq n$ $w$ eine Zerlegung in Teilworte in $w = xyz$ hat für die die Eigenschaften des Pumping Lemmas gelten. Sei $n$ gleich dem $n$ aus  $a^n b^n$. Damit hat das Wort $a^n b^n$ die Länge $2n$. Es folgt auch dass das Teilwort $xy$ nur $a´s$ enthalten kann. Nach dem Pumping Lemma muss nun eine Zerlegung existieren so dass jedes Wort geschrieben werden kann als: $a^n b^n = xyz$ mit $x$, $y$, $z$ $\in A^*$, $\vert x y \vert \leq n$, $\vert y \vert \geq 1$ und $x y^{2} z \in \mathcal{L}$. (nur schwaches Kriterium des Pumping lemma)\\ \ \\
+Da $\vert x y \vert \leq n$, ist das Wort $x y$ ein präfix von $a^n$ und es gilt $x = a^r$, $y = a^s$, $z = a^{t}b^n$ mit \underline{$r + s + t = n$}, weiter gilt nach Vorraussetzung $s \neq 0$\\ \ \\
+Betrachten wir $xy^{2}z = a^r a^{2s} a^{t} b ^{n}$, gilt da $s \neq 0$  \underline{$r+2s+t \neq n$} und somit $xy^{2}z \notin \mathcal{L}$.  Damit erhalten wir einen Widerspruch zu anfänglichen Annahme. qed
+
+\subsection{Bemerkung zum Pumping Lemma}
+
+Durch das Pumping Lemma sind nicht die regulären Sprachen und damit auch die Sprachen welche durch endliche Automaten erkannt werden, definiert. Es gilt also ist eine Sprache regulär, dann erfüllt sie das Pumping Lemma. Es gilt aber nicht das jede Sprache die das Pumping Lemma erfüllt, eine Reguläre Sprache ist.In vielen Fällen ist das Pumping Lemma jedoch ein guter Weg um bei einer Sprache zu zeigen das sie nicht regulär und damit durch einen endlichen Automaten akzeptierbar ist.
+\section{Deterministische endliche Automaten}
+Die bisher betrachteten Automaten haben einen Nachteil. Wenn der Automat das Wort akzeptiert, dann wissen wir dass das dem Automaten gegebene Wort sich in der Sprache des Automaten befindet. Beim Ablehnen wissen wir nicht ob es nicht doch einen akzeptierenden Pfad im Automaten gibt, der im letzten Lauf des Automaten nicht genommen wurde. An dieser Stelle wird das Konzept der deterministischen Automaten Sinnvoll. Bei dieser Form eines Automaten können wir dem Ablehnen so wie dem Akzeptieren vetrauen. 
+
+\subsection{Definition}
+Ein Automat $\mathcal{A}$ = ($Q$,$A$,$E$,$I$,$F$) ist \textbf{deterministisch} wenn:
+\begin{itemize}
+	\item $\vert I \vert = 1$
+	\item $\forall q \in Q$ $ \forall a \in A : \exists$ genau ein $q' : q \xrightarrow{a} q' \in E$ 
+	\item Der Zustand $q'$ wird nun mit $q \cdot a$ notiert 
+	\item Ist $q_{-}$ der initial Zustand schreiben wir $\mathcal{A}$ = ($Q$,$A$,$\cdot$,$q_{-}$,$F$)
+\end{itemize}
+Im deterministischen Fall, darf die Menge der initialen Zustände nur einen Zustand enthalten. Es fällt auf das die Zuordnung zu einem Zustand $q$ und einem Zeichen $a$ jetzt eindeutig bestimmt ist. Daher beschreiben die Transitionen durch diese eindeutigkeit jetzt eine Funktion. An diese Punkt befindet sich auch der determinismus, es darf nun keine Transitionen zu dem selben Zustand geben, die unter dem selben Zeichen $a$ in zwei verschiedene Zustände führen.
+
+\subsection{Beispiel zu einem deterministischen Automaten}
+In \ref{fig:Aut5} ist ein deterministischer Automat gegeben. Aus jedem Zustand ist bei diesen Automaten eindeutig in welchen Zustand er unter einem Zeichen überführt wird.
+
+\begin{figure}
+	\centering
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+		\tikzstyle{every state}=[fill=none,draw=black,text=black]
+		
+		\node[initial,state]		(A)				{$1$};
+		\node[state]			(B)	[right of=A]	{$2$};
+		\node[state,accepting]	(C)	[right of=B]	{$3$};
+		\node[state,accepting]	(D)	[right of=C]	{$4$};
+		
+		
+		
+		
+		\path		(A)	edge		[loop above] 	node	{b} (A)
+		
+		edge		[bend left]		node	{a} (B)
+		(B)	edge		[bend left]		node	{a} (A)
+		edge		[bend left]		node	{b} (C)
+		(C)	edge		[bend left]		node	{b} (B)
+		edge		[bend left]		node	{a} (D)
+		(D)	edge		[bend left]		node	{a} (C)
+		edge		[loop right]		node	{b} (D);
+		\end{tikzpicture} 
+	\caption{Beispiel zu einem deter. Automat}
+	\label{fig:Aut5}
+\end{figure} 
+
+\subsection{Äquivalenz zu endl. Automaten}
+
+Ein sehr wichtiges Ergebniss im Zusammenhang mit den endlichen und deterministischen Automaten die Äquivalenz dieser Beiden Konzepte. Dies bedeuted, dass sich jeder endliche Automat determinisieren lässt ohne das sich bei seiner akzeptierten Sprache etwas ändert. In dem vorgeführten Beweis wird die Methode der Potenzmengen Konstruktion verwendet. Diese Konstruktion soll zuerst an einem Beispiel vorgeführt werden, anschließend wird die Aussage bewiesen. Bevor wir das Beispiel betrachten, folgen kurz die Definitionen der neuen Mengen des deterministischen Automaten: \\ \ \\
+Sei $\mathcal{A}$ = ($Q$,$A$,$E$,$I$,$F$) der endliche Automat von dem wir zu Beginn ausgehen.
+D($\mathcal{A}$) = ($\mathcal{P}$(Q),A,$\cdot$,$I$,$\mathcal{F}$)  \textit{($\mathcal{P}(Q)$ ist die Potenzmenge von Q}) ist die determinisierte Version von $\mathcal{A}$.\\ \ \\
+\begin{center}
+$\mathcal{F} = \{ P \subseteq Q \vert P \cap F \neq \emptyset \}$  \\ \ \\
+$\forall$ $P \in \mathcal{P}(Q) $, $\forall$ $a \in A$ : $P \cdot a=\{q\in Q$ $\vert $ $\exists$ $p \in P : (p,a,q) \in E \}$ 
+\end{center} \\ \ \\
+Die neuen Endzustände $\mathcal{F}$ sind diejenigen Elemente $P$ aus der Potenzmenge der Zustände $\mathcal{P}(Q)$ die unter dem Schnitt der Mengen mit der alten Menge der Endzuständen $F$ eine nicht leere Menge ergeben. Dies bedeuted der neue Endzustand bestehend aus Elementen der alten Zustandsmenge $Q$ enthält mindestens einen Zustand der sich auch in der Menge der alten Endzustände befunden hat. \\ \ \\
+Die neue Menge der Transitionen für die Elemente $P$ (welche selbst eine Menge alter Zustände $p$ darstellen), unter einem Zeichen $a$ , sind diejenigen Zustände $q$ für die es in der alten Menge der Transitionen jeweils eine Transition unter einem $p$ unter $a$ in einen Zustand $q$ gibt.\\ Die neuen Zustände aus der Potenzmenge $\mathcal{P}(Q)$ sind so zu interpretieren das wenn der neue deterministische Automat sich in einem Zustand $\{q_1, q_2\}$ befindet, befand sich der alte Automat in Zustand $q_1$ oder Zustand $q_2$.
+
+\subsection{Beispiel Potenzmengen Konstruktion}
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state]		(A)				{$0$};
+	\node[state,accepting]			(B)	[right of=A]	{$1$};
+	\node[state]	(C)	[below of=A]	{$2$};
+	
+	
+	
+	
+	
+	
+	\path		(A)	edge		 	node	{a} (B)
+	(A) edge   node {b} (C)
+	
+	
+	;
+	\end{tikzpicture} 
+	
+	\caption{Nichtdeter. Automat}
+	\label{fig:Aut6}
+\end{figure} 
+Der in \ref{fig:Aut6} gegebene Automat hat die Zustandsmenge $Q = \{0, 1, 2\}$, die Potenzmenge davon ist gegeben durch $\mathcal{P}(Q)$ = $\{ \{\}, \{0\}, \{1\}, \{2\}, \{0,1\}, \{1,2\}, \{0,2\}, \{0,1,2\}\}$. \\ \ \\
+Der determinisierte Automat D($\mathcal{A}$) in abb. \ref{fig:Aut7} besteht nun aus den Zuständen aus der Potenzmenge
+$\mathcal{P}(Q)$. Ausgehend von Zustand der Menge $\{0\}$ überprüfen wir in welche alten Zustände $q$ in $Q$ wir aus dem Zustand $0$ unter einem Zeichen $a$ gelangen. Dies ist die Menge aus dem Zustand $\{1\}$. Ähnlich gilt für Zustand $\{0\}$ unter dem Zeichen $b$, das wir in den Zustand aus der Menge $\{2\}$ gelangen. Aus den Zustand der Mengen $\{1\}$ und $\{2\}$ gelangen wir jeweils unter den Zeichen $a$ und $b$ in den Zustand der leeren Menge $\{\}$. Dies stellt den Totzustand dar. Unter den Zeichen $a$ und $b$ verbleiben wir in diesem. Nun haben wir Alle erreichbaren Zustände überprüft. In der Potenzmenge existieren jedoch noch weitere Zustände. Diese verhalten sich in diesem Beispiel Alle gleich, daher ist nur einer von ihnen exemplarisch dargestellt und Besprochen. Aus dem Zustand der Menge $\{1,2\}$ erreichen wir unter einem Zeichen $a$ den Zustand aus der Menge $\{1\}$ und unter einem Zeichen $b$ den Zustand der Menge $\{2\}$.
+
+
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state]		(A)				{$\{0\}$};
+	\node[state,accepting]			(B)	[right of=A]	{$\{1\}$};
+	\node[state]	(C)	[below of=A]	{$\{2\}$};
+	\node[state]   (D)  [below of=B]     {$\{\}$};
+	\node[state,minimum size=0.4cm]   (E)  [right of=D] {\tiny  $\{1,2\}$};
+	
+	
+	
+	
+	
+	\path		(A)	edge		 	node	{a} (B)
+	(A) edge   node {b} (C)
+	(B) edge node {a,b} (D)
+	(C) edge node {a,b} (D)
+	(D) edge		[loop right]		node	{a,b} (D)
+	(E) edge [bend right] node {a} (B)
+	(E) edge [bend left] node {b} (C)
+	
+	;
+	\end{tikzpicture} 
+	
+	\caption{Determinisierter Automat aus \ref{fig:Aut6}}
+	\label{fig:Aut7}
+\end{figure} 
+
+\subsubsection{Beweis der Äquivalenz} \\ \ \\
+In dem Beweis zeigen wir einmal die Richtung, dass der endliche Automat ein Wort akzeptiert und beweisen dann, dass dieses Wort auch durch den determinisierten Automaten akzeptiert wird. Umgekehrt wird dann gezeigt, dass wenn der determinisierte Automat ein Wort erkennt, dies auch der endliche Automat akzeptiert. \\ \ \\
+	Sei $u= a_1 \cdots a_n$ das Label eines akzeptierenden Pfades des endlichen Automaten $\mathcal{A}$. Diesen können wir als
+	\begin{center}
+	$C: q_0 \xrightarrow{a_1} q_1 \cdots q_{n-1} \xrightarrow{a_n} q_n$ notieren.
+	\end{center}
+	\\ \ \\
+	Das Label $u$ definiert ebenfalls einen Pfad in dem determinisierten Automaten $\mathcal{P}(Q)$ :
+	\begin{center}
+		$\mathcal{C}$ : I = $ \textcolor{blue}{P_0} \xrightarrow{a_1} P_1 \cdots P_{n-1} \xrightarrow{a_n} P_n$
+	\end{center}
+	 Hierbei sind die $P_i$ Zustände aus der Potenzmenge $\mathcal{P}(Q)$.
+	Mithilfe einer Induktion über $i$ kann man zeigen, das für $0 \leq i \leq n$, \underline{$q_i \in P_i$}, das also der Pfad in der determinisierten Version ebenfalls ein akzeptierender Pfad ist, da jeder einzelne alte Zustand $q_i$ nun in der neuen Zustandsmenge $P_i$, bestehend aus evtl. mehreren alten Zuständen, enthalten ist.\\ \ \\
+	Induktions Anfang: Da c ein akzeptierender Pfad ist (muss in initialem Zustand beginnen) gilt $q_0 \in I = P_0$ \\ \ \\
+	Induktions Annahme: $q_{i-1} \in P_{i-1} $\\ \ \\
+	Induktions Schluss: Da $q_{i-1} \xrightarrow{a_i} q_i$ eine Transition ist, gilt: \\ \ \\
+	\begin{center}
+ $q_i \in   \underbrace{P_{i-1} \cdot a_i}_{P_{i-1} \cdot a_i =\{q\in Q \vert \exists p \in P_{i-1} : (p,a,q) \in E \}} = P_i$ 
+	\end{center}
+	\\ \ \\
+	Im Induktionschluss benutzen wir zum einen das $q_{i-1} \in P_{i-1} $ gilt und das $q_{i-1} \xrightarrow{a_i} q_i$. Nun benutzen wir die Eigenschaft der Definition der Übergänge unter einem Zeichen $a_i$ eines Zustandes $P_i$. Dies sind  Alle $q$ für die es aus einem Zustand $p_i \in P_i$ in der alten Menge der Transition $E$ gerade eine Transition unter $p_i$ unter dem Zeichen $a_i$ in den Zustand $q$ gab, daher gilt $q_i \in P_i$ \\ \ \\
+	Für $i = n$ erhalten wir auf diese weise $q_n \in P_n$ und da c ein akzeptierender Pfad ist gilt $q_n \in F$ (F sind alten Entzustände) \\ \ \\
+	Es folgt also das $P_n$  ein Endzustand aus F enthält, und daher gilt $P_n \in \mathcal{F}$ Daher akzeptiert D($\mathcal{A}$) das Wort u. \\ \ \\
+	
+	Sei andersherum $u = a_1 \cdots a_n$ ein Wort das durch determinisierten Automaten D($\mathcal{A}$) akzeptiert wird und dadurch einen akzeptierenden Pfad definiert. \\ \ \\
+	Da $P_n$ ein Endzustand ist existiert ein $q_n \in P_n \cap F$ der den Endzustand des Pfades in $\mathcal{A}$ definiert. \\ \ \\
+	Nun können wir für $i = n, n-1, ... , 1$ ein Element $q_{i-1} \in P_{i-1}$ auswählen und damit eine passende Transition $q_{i-1} \xrightarrow{a_i} q_i$ in $\mathcal{A}$ bauen. Dies funktioniert da wir den Pfad durch die Potenzmengenzustände zuvor so ausgewählt haben das evtl nicht jeder alte Zustand $q_{i-1}$ infrage kommt, dass es jedoch mindestens einen gibt der die Bedingung erfüllt\\ \ \\
+	Da $q_0 \in I$ und $q_n \in F$ ist der Pfad $ q_0 \xrightarrow{a_1} q_1 \cdots q_{n-1} \xrightarrow{a_n} q_n$ ein akzeptierender Pfad in $\mathcal{A}$. qed
+	
+\subsection{Eigenschaften deterministischer endlicher Automaten}	
+
+	Ein Automat $\mathcal{A}$ = (Q,A,$\cdot$,$q_-$,F) ist \textbf{vollständig} wenn gilt
+	\begin{center}
+			$\forall q \in Q \land \forall a \in A$ $ \exists$ mindestens ein $q' : q \xrightarrow{a} q'$ 
+	\end{center}\\ \ \\
+		Ein Automat ist \textbf{erreichbar / coerreichbar} wenn Alle seine Zustände \textit{erreichbar / coerreichbar} sind \\ \ \\
+			Ein Automat ist \textbf{trim}, wenn alle seine Zustände \textit{erreichbar} und \textit{coerreichbar} sind.
+
+\begin{figure}
+	\centering
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=2.4cm,
+semithick]
+\tikzstyle{every state}=[fill=none,draw=black,text=black]
+
+\node[initial,state,minimum size=0.4cm] (A)                    {\tiny $1$};
+\node[initial,state, accepting,minimum size=0.4cm]         (B) [right of=A] {\tiny $2$};
+
+
+\path (A) edge [bend left]            node {a} (B)
+(B) edge [bend left] node {b} (A)
+(B) edge [loop above] node {b} (B)
+(A) edge [loop above] node {a} (A); 
+\end{tikzpicture}
+	
+	\caption{Beispiel eines nicht vollständigen Automaten}
+	\label{fig:Aut8}
+\end{figure} 
+Der in \ref{fig:Aut8} dargestellte endliche Automat ist nicht vollständig, da es aus Zustand $1$  keine Transition für das Zeichen $b$ gibt.
+\begin{figure}
+	\centering
+		\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.4cm,
+		semithick]
+		\tikzstyle{every state}=[fill=none,draw=black,text=black]
+		
+		\node[initial,state,minimum size=0.4cm] (A)                    {\tiny $1$};
+		\node[state, accepting,minimum size=0.4cm]         (B) [right of=A] {\tiny $2$};
+		
+		
+		\path (A) edge [bend left]            node {b} (B)
+		(B) edge [bend left] node {a} (A)
+		(B) edge [loop above] node {b} (B)
+		(A) edge [loop above] node {a} (A); 
+		\end{tikzpicture}
+	
+	\caption{Beispiel eines vollständigen Automaten}
+	\label{fig:Aut9}
+\end{figure} 
+Der in \ref{fig:Aut9} dargestellte Automat ist vollständig, da es für alle Zeichen und jeden Zustand eine Transition gibt.
+\begin{figure}
+	\centering
+	\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+	\tikzstyle{every state}=[fill=none,draw=black,text=black]
+	
+	\node[initial,state]		(A)				{$0$};
+	\node[state]			(B)	[right of=A]	{$1$};
+	\node[state,accepting]	(C)	[below of=A]	{$2$};
+	
+	
+	
+	
+	
+	\path		(A)	edge		 	node	{a} (B)
+	(A) edge   node {b} (C)
+	(B) edge [loop above] node {a} (B)
+	(C) edge [loop below] node {b} (C)
+	;
+	\end{tikzpicture}
+	
+	\caption{Beispiel eines erreichbaren Automaten}
+	\label{fig:Aut10}
+\end{figure} 
+Der in \ref{fig:Aut10} gegebene Automat ist nur erreichbar da ein initialer Pfad zu allen Endzuständen existiert, jedoch kein finaler Pfad aus Zustand $1$ existiert. \\ \ \\
+\begin{figure}
+	\centering
+\begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=1.8cm,semithick]
+\tikzstyle{every state}=[fill=none,draw=black,text=black]
+
+\node[state,accepting]		(A)				{$0$};
+\node[state]			(B)	[right of=A]	{$1$};
+\node[state,initial]	(C)	[below of=A]	{$2$};
+
+
+
+
+
+\path		(B)	edge		 	node	{a} (A)
+(C) edge   node {b} (A)
+(B) edge [loop above] node {a} (B)
+(C) edge [loop below] node {b} (C)
+;
+\end{tikzpicture}
+	
+	\caption{Beispiel eines coerreichbaren Automaten}
+	\label{fig:Aut11}
+\end{figure} 
+Der in \ref{fig:Aut11} gegeben Automat ist coerreichbar da für alle Zustände gilt, dass sie finale Pfade zu initialen Zustand sind.
+
+	
+
+\newpage
+\section{Zusamenfassung}
+Endliche Automaten erkennen die als recocnisable bezeichneten Sprachen. Sie bieten einen alternativen Zugang zu den regulären Sprächen über das Modell der Automaten. Jeder endliche Automat lässt sich mit maximal exponentiell viel mehr Aufwand in eine deterministische Variante umsetzen. Die durch den Automaten erkannte Sprache ändert sich dabei nicht. 
+
+
+
+
+\end{document} 
